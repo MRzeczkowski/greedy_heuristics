@@ -18,7 +18,7 @@ The Variable Neighborhood algorithm introduces a dynamic element into the neighb
 Below is the output of the program, which includes simulation parameters and the results of each algorithm under various conditions:
 
 Simulation Parameters:
-- Number of dimensions: [3 5]
+- Number of dimensions: [1 2 3 5]
 - Max iterations per test: 1000
 - Number of solutions per iteration: 10
 - Gamma change rate for Variable Neighborhood: 0.0001
@@ -26,11 +26,23 @@ Simulation Parameters:
 
 | Dimensions | Algorithm | Average Result | Average Time (ms) |
 |-|-|-|-|
-| 3 | Basic | 1.5294 | 3 |
-| 3 | Multi-Start | 2.4637 | 21 |
-| 3 | Variable Neighborhood | 1.2935 | 3 |
-| 5 | Basic | 10.6019 | 4 |
-| 5 | Multi-Start | 15.2964 | 36 |
-| 5 | Variable Neighborhood | 4.7868 | 7 |
+| 1 | Basic | 0.0000 | 1 |
+| 1 | Multi-Start | 0.0000 | 6 |
+| 1 | Variable Neighborhood | 0.0796 | 0 |
+| 2 | Basic | 0.0582 | 2 |
+| 2 | Multi-Start | 0.1680 | 13 |
+| 2 | Variable Neighborhood | 0.3880 | 2 |
+| 3 | Basic | 1.4938 | 3 |
+| 3 | Multi-Start | 2.2488 | 21 |
+| 3 | Variable Neighborhood | 1.5224 | 3 |
+| 5 | Basic | 10.5382 | 4 |
+| 5 | Multi-Start | 15.5698 | 36 |
+| 5 | Variable Neighborhood | 4.9760 | 7 |
 
-Unfortunately the global minima have not been found and the algorithm got stuck in a local minimum. The Variable Neighborhood faired best and this is probably because it was able to extend its search space and find a better solution. What is interesting is that it seems to react better to a smaller Gamma change rate - the bigger it was the worse the results and the value of 0.0001 was the best. Notably it was also very fast and much faster than the Multi-Start method.
+Unfortunately the global minimum has not been found in each dimension and the algorithm got stuck in a local minimum. 
+
+The Basic method is fasted and sometimes gives better results than the Multi-Start method.
+
+The Multi-Start algorithm is the slowest and seems to overall fared the worst of all methods. 
+
+The Variable Neighborhood didn't find the global minimum in lower dimensions but had best results in higher dimensions and this is probably because it was able to extend its search space and find a better solution. What is interesting is that it seems to react better to a smaller Gamma change rate - the bigger it was the worse the results and the value of 0.0001 was the best. Notably it was also very fast and much faster than the Multi-Start method.

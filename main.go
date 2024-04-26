@@ -139,7 +139,7 @@ func variableNeighborhoodGreedy(dimensions int, maxIterations int, gammaChangeRa
 
 func main() {
 
-	dimensions := []int{3, 5}
+	dimensions := []int{1, 2, 3, 5}
 	maxIterations := 1000
 	numberOfSolutions := 10
 	gammaChangeRate := 0.0001
