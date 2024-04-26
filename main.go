@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"math"
 	"math/rand"
+	"time"
 )
 
-// Funkcja Rastrigina dla wektora x
 func rastrigin(x []float64) float64 {
 	n := len(x)
 	sum := 10.0 * float64(n)
@@ -16,7 +16,6 @@ func rastrigin(x []float64) float64 {
 	return sum
 }
 
-// Generuje nowe rozwiązania przez perturbację obecnego punktu
 func generateNewSolutions(x0 []float64, numberOfSolutions int, stdDev float64) [][]float64 {
 	n := len(x0)
 	solutions := make([][]float64, numberOfSolutions)
@@ -30,7 +29,6 @@ func generateNewSolutions(x0 []float64, numberOfSolutions int, stdDev float64) [
 	return solutions
 }
 
-// Znajduje najlepsze rozwiązanie z listy
 func findBestSolution(solutions [][]float64) []float64 {
 	bestSolution := solutions[0]
 	bestValue := rastrigin(bestSolution)
@@ -75,12 +73,9 @@ func basicGreedy(dimensions int, maxIterations int, numberOfSolutions int) []flo
 
 func multiStartGreedy(dimensions int, maxStarts int, numberOfSolutions int) []float64 {
 	bestGlobalSolution := make([]float64, dimensions)
-	bestGlobalValue := math.Inf(1) // Nieskończoność, szukamy minimum
+	bestGlobalValue := math.Inf(1)
 
-	// Powtarzamy algorytm z różnych początkowych punktów
 	for t := 0; t < maxStarts; t++ {
-
-		// Wybierz losowe rozwiązanie początkowe
 		currentSolution := drawInitialSolution(dimensions)
 		currentValue := rastrigin(currentSolution)
 		local := false
@@ -94,11 +89,10 @@ func multiStartGreedy(dimensions int, maxStarts int, numberOfSolutions int) []fl
 				currentSolution = bestNewSolution
 				currentValue = bestNewValue
 			} else {
-				local = true // Nie znaleziono lepszego lokalnego rozwiązania
+				local = true
 			}
 		}
 
-		// Sprawdzenie, czy obecne rozwiązanie jest najlepsze globalnie
 		if currentValue < bestGlobalValue {
 			bestGlobalValue = currentValue
 			bestGlobalSolution = currentSolution
@@ -114,9 +108,15 @@ func variableNeighborhoodGreedy(dimensions int, maxIterations int, stdDevChangeR
 	currentValue := rastrigin(x0)
 	currentSolution := x0
 	k := 1
+	maxStdDev := 1.0
 
-	for k < maxIterations {
-		newSolution := generateNewSolutions(currentSolution, 1, float64(k)*stdDevChangeRate)[0]
+	for k <= maxIterations {
+		stdDev := float64(k) * stdDevChangeRate
+		if stdDev > maxStdDev {
+			stdDev = maxStdDev
+		}
+
+		newSolution := generateNewSolutions(currentSolution, 1, stdDev)[0]
 		newValue := rastrigin(newSolution)
 
 		if newValue < currentValue {
@@ -127,25 +127,49 @@ func variableNeighborhoodGreedy(dimensions int, maxIterations int, stdDevChangeR
 			k++
 		}
 	}
+
 	return currentSolution
 }
 
 func main() {
 
-	dimensions := 3
+	dimensions := []int{3, 5}
 	maxIterations := 1000
-	numberOfSolutions := 100
+	numberOfSolutions := 10
 	stdDevChangeRate := 0.1
+	numberOfTests := 10
 
-	// Test podstawowego algorytmu
-	solution1 := basicGreedy(dimensions, maxIterations, numberOfSolutions)
-	fmt.Println("Basic Greedy Result:", solution1, "=", rastrigin(solution1))
+	fmt.Println("Running simulations...")
+	fmt.Println("| Dimensions | Algorithm | Average Result | Average Time (ms) |")
+	fmt.Println("|------------|-----------|----------------|-------------------|")
 
-	// Test wielostartowego algorytmu
-	solution2 := multiStartGreedy(dimensions, maxIterations, numberOfSolutions)
-	fmt.Println("Multi-Start Greedy Result:", solution2, "=", rastrigin(solution2))
+	// Iteracja przez różne wymiary zadania
+	for _, dim := range dimensions {
+		basicGreedySum, multiStartGreedySum, variableNeighborhoodGreedySum := 0.0, 0.0, 0.0
+		basicGreedyTime, multiStartGreedyTime, variableNeighborhoodGreedyTime := time.Duration(0), time.Duration(0), time.Duration(0)
 
-	// Test algorytmu ze zmiennym sąsiedztwem
-	solution3 := variableNeighborhoodGreedy(dimensions, maxIterations, stdDevChangeRate)
-	fmt.Println("Variable Neighborhood Greedy Result:", solution3, "=", rastrigin(solution3))
+		for i := 0; i < numberOfTests; i++ {
+			start := time.Now()
+			solution1 := basicGreedy(dim, maxIterations, numberOfSolutions)
+			result1 := rastrigin(solution1)
+			basicGreedySum += result1
+			basicGreedyTime += time.Since(start)
+
+			start = time.Now()
+			solution2 := multiStartGreedy(dim, maxIterations, numberOfSolutions)
+			result2 := rastrigin(solution2)
+			multiStartGreedySum += result2
+			multiStartGreedyTime += time.Since(start)
+
+			start = time.Now()
+			solution3 := variableNeighborhoodGreedy(dim, maxIterations, stdDevChangeRate)
+			result3 := rastrigin(solution3)
+			variableNeighborhoodGreedySum += result3
+			variableNeighborhoodGreedyTime += time.Since(start)
+		}
+
+		fmt.Printf("| %d          | Basic Greedy | %.4f         | %v                |\n", dim, basicGreedySum/float64(numberOfTests), basicGreedyTime.Milliseconds()/int64(numberOfTests))
+		fmt.Printf("| %d          | Multi-Start Greedy | %.4f    | %v                |\n", dim, multiStartGreedySum/float64(numberOfTests), multiStartGreedyTime.Milliseconds()/int64(numberOfTests))
+		fmt.Printf("| %d          | Variable Neighborhood Greedy | %.4f | %v           |\n", dim, variableNeighborhoodGreedySum/float64(numberOfTests), variableNeighborhoodGreedyTime.Milliseconds()/int64(numberOfTests))
+	}
 }
