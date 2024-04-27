@@ -21,13 +21,22 @@ func cauchyRandom(x0 float64, gamma float64) float64 {
 	return x0 + gamma*math.Tan((rand.Float64()-0.5)*math.Pi)
 }
 
+func clamp(value float64) float64 {
+	if value < -5.12 {
+		return -5.12
+	} else if value > 5.12 {
+		return 5.12
+	}
+	return value
+}
+
 func generateNewSolutions(x0 []float64, numberOfSolutions int, gamma float64) [][]float64 {
 	n := len(x0)
 	solutions := make([][]float64, numberOfSolutions)
 	for i := range solutions {
 		solutions[i] = make([]float64, n)
 		for j := range solutions[i] {
-			solutions[i][j] = cauchyRandom(x0[j], gamma)
+			solutions[i][j] = clamp(cauchyRandom(x0[j], gamma))
 		}
 	}
 
@@ -51,7 +60,7 @@ func findBestSolution(solutions [][]float64) []float64 {
 func drawInitialSolution(dimensions int) []float64 {
 	initialSolution := make([]float64, dimensions)
 	for i := range initialSolution {
-		initialSolution[i] = rand.Float64()*10.24 + 5.12
+		initialSolution[i] = rand.Float64()*10.24 - 5.12
 	}
 
 	return initialSolution
